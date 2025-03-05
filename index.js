@@ -70,16 +70,24 @@ function renderQuestion(question) {
   const questionAnswers = document.createElement("div");
   questionAnswers.classList.add("question-answers");
 
+  // [a,b,c,d] -->
+
+  const answersCopy = [];
   question.answers.forEach((answer) => {
+    answersCopy.push(answer);
+  });
+  while (answersCopy.length > 0) {
+    const randomPointer = Math.floor(Math.random() * answersCopy.length);
+
+    const answer = answersCopy.splice(randomPointer, 1)[0];
+
     const answerDiv = document.createElement("button");
     answerDiv.id = answer.id;
-    answerDiv.onclick = () => {
-      sendAnswer(answer);
-    };
+    answerDiv.setAttribute("onclick", `validate('${answer.id}')`);
     answerDiv.classList.add("answer");
     answerDiv.appendChild(document.createTextNode(answer.text));
     questionAnswers.appendChild(answerDiv);
-  });
+  }
 
   questionDiv.appendChild(questionTitle);
   questionDiv.appendChild(questionAnswers);
@@ -101,10 +109,24 @@ function nextQuestion() {
   renderQuestion(currentQuestion);
 }
 
-function sendAnswer(answer) {
-  console.log(`Antowort ist ${answer.correct}, Answer ID ist ${answer.id}`);
-  answer.correct ? console.log("Grün") : console.log("Rot");
-  currentQuestion.answers.forEach((ans) => {
-    console.log(answer.correct, answer.id, ans.correct, ans.id);
+function validate(answerId) {
+  const correctAnswer = currentQuestion.answers.find((answer) => {
+    return answer.correct;
   });
+
+  if (correctAnswer.id === answerId) {
+    alert("Richtig");
+    document.getElementById(answerId).classList.add("correct");
+  } else {
+    alert("Falsch");
+    document.getElementById(answerId).classList.add("incorrect");
+    document.getElementById(correctAnswer.id).classList.add("correct");
+  }
+}
+
+function showSolution() {
+  const correctAnswer = currentQuestion.answers.find((answer) => {
+    return answer.correct;
+  });
+  document.getElementById(correctAnswer.id).classList.add("correct");
 }
